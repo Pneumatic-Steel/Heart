@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FINAL // HEART // ENGINE</title>
+    <style>
+        body {
+            margin: 0;
+            background: #000;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            cursor: pointer;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        #click-prompt {
+            position: absolute;
+            z-index: 10;
+            color: #ff003c;
+            font-family: monospace;
+            letter-spacing: 5px;
+            font-size: 14px;
+            pointer-events: none;
+            opacity: 0.5;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse { 0% { opacity: 0.2; } 50% { opacity: 1; } 100% { opacity: 0.2; } }
+    </style>
+</head>
+<body>
+
+<div id="click-prompt">[ CLICK TO INITIALIZE ]</div>
+<canvas id="c"></canvas>
+
+<script>
+/**
+ * AUDIO ENGINE: "THE FULL ARRANGEMENT"
+ * (Identical to previous version)
+ */
+
+const AC = new (window.AudioContext || window.webkitAudioContext)();
+const MASTER = AC.createGain();
+const LIMITER = AC.createDynamicsCompressor();
+const ANALYSER = AC.createAnalyser();
+
+// Master Chain
+MASTER.gain.value = 0.7;
+LIMITER.threshold.value = -8;
+LIMITER.ratio.value = 20;
+LIMITER.attack.value = 0.001; 
+MASTER.connect(LIMITER);
+LIMITER.connect(ANALYSER);
+ANALYSER.connect(AC.destination);
+ANALYSER.fftSize = 256; // Fast reaction time
+
+// --- SYNTHESIS ---
+
+function kick(t) {
+    const osc = AC.createOscillator();
+    const g = AC.createGain();
+    osc.frequency.setValueAtTime(150, t);
+    osc.frequency.exponentialRampToValueAtTime(40, t + 0.1);
+    g.gain.setValueAtTime(1, t);
+    g.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
+    osc.connect(g); g.connect(MASTER);
+    osc.start(t); osc.stop(t+0.4);
+}
+
+function snare(t) {
+    const buf = AC.createBuffer(1, AC.sampleRate*0.2, AC.sampleRate);
+    const d = buf.getChannelData(0);
+    for(let i=0; i<d.length; i++) d[i]=(Math.random()*2-1);
+    const n = AC.createBufferSource();
+    n.buffer = buf;
+    const f = AC.createBiquadFilter();
+    f.type = 'highpass';
+    f.frequency.value = 1000;
+    const g = AC.createGain();
+    g.gain.setValueAtTime(0.8, t);
+    g.gain.exponentialRampToValueAtTime(0.01, t+0.2);
+    n.connect(f); f.connect(g); g.connect(MASTER);
+    n.start(t);
+
+    const osc = AC.createOscillator();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(200, t);
+    const og = AC.createGain();
+    og.gain.setValueAtTime(0.5, t);
+    og.gain.exponentialRampToValueAtTime(0.01, t+0.1);
+    osc.connect(og); og.connect(MASTER);
+    osc.start(t); osc.stop(t+0.1);
+}
+
+function hat(t, open) {
+    const buf = AC.createBuffer(1, AC.sampleRate*0.1, AC.sampleRate);
+    const d = buf.getChannelData(0);
+    for(let i=0; i<d.length; i++) d[i]=(Math.random()*2-1);
+    const n = AC.createBufferSource();
+    n.buffer = buf;
+    const f = AC.createBiquadFilter();
+    f.type = 'highpass';
+    f.frequency.value = 5000;
+    const g = AC.createGain();
+    g.gain.value = open ? 0.3 : 0.1;
+    g.gain.exponentialRampToValueAtTime(0.01, t + (open ? 0.1 : 0.05));
+    n.connect(f); f.connect(g); g.connect(MASTER);
+    n.start(t);
+}
+
+function bass(t, dur, note, type) {
+    const osc = AC.createOscillator();
+    const mod = AC.createOscillator();
+    const modG = AC.createGain();
+    const filter = AC.createBiquadFilter();
+    const dist = AC.createWaveShaper();
+    const amp = AC.createGain();
+
+    const freqs = { 'F': 43.65, 'G#': 51.91, 'A#': 58.27, 'C': 65.41, 'C#': 69.30 };
+    const f = freqs[note] || 43.65;
+
+    function makeCurve(k) {
+        const c = new Float32Array(44100);
+        for(let i=0; i<44100; i++) {
+            let x = i*2/44100-1;
+            c[i] = (3+k)*x*20*(Math.PI/180)/(Math.PI+k*Math.abs(x));
+        }
+        return c;
+    }
+    dist.curve = makeCurve(400);
+
+    osc.frequency.setValueAtTime(f, t);
+    mod.frequency.setValueAtTime(f, t);
+
+    if (type === 'WOBBLE') {
+        osc.type = 'sawtooth';
+        mod.type = 'sine';
+        modG.gain.value = 100; 
+        filter.type = 'lowpass';
+        filter.Q.value = 8;
+        filter.frequency.setValueAtTime(100, t);
+        filter.frequency.linearRampToValueAtTime(1200, t + dur/2);
+        filter.frequency.linearRampToValueAtTime(100, t + dur);
+    } 
+    else if (type === 'GROWL') {
+        osc.type = 'sawtooth';
+        mod.type = 'square';
+        modG.gain.setValueAtTime(f*2, t);
+        filter.type = 'peaking';
+        filter.Q.value = 2;
+        filter.gain.value = 20;
+        filter.frequency.setValueAtTime(300, t);
+        filter.frequency.linearRampToValueAtTime(2000, t + dur);
+    }
+    else if (type === 'REESE') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(f-1, t);
+        mod.type = 'sawtooth';
+        mod.frequency.setValueAtTime(f+1, t);
+        modG.gain.value = 0.5;
+        filter.type = 'lowpass';
+        filter.frequency.value = 800;
+        mod.connect(amp);
+    }
+
+    if (type !== 'REESE') {
+        mod.connect(modG);
+        modG.connect(osc.frequency);
+        osc.connect(filter);
+        filter.connect(dist);
+        dist.connect(amp);
+    } else {
+        osc.connect(filter);
+        filter.connect(amp);
+    }
+
+    amp.connect(MASTER);
+    amp.gain.setValueAtTime(0, t);
+    amp.gain.linearRampToValueAtTime(type==='REESE'?0.6:1, t+0.05);
+    amp.gain.linearRampToValueAtTime(0, t+dur);
+
+    osc.start(t); mod.start(t);
+    osc.stop(t+dur); mod.stop(t+dur);
+}
+
+function lead(t, note) {
+    const osc = AC.createOscillator();
+    osc.type = 'square';
+    osc.frequency.value = note;
+    const g = AC.createGain();
+    g.gain.setValueAtTime(0.1, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t+0.2);
+    
+    const delay = AC.createDelay();
+    delay.delayTime.value = 0.2;
+    const fb = AC.createGain();
+    fb.gain.value = 0.4;
+    
+    osc.connect(g);
+    g.connect(MASTER);
+    g.connect(delay);
+    delay.connect(fb);
+    fb.connect(delay);
+    delay.connect(MASTER);
+
+    osc.start(t); osc.stop(t+0.2);
+}
+
+// --- SEQUENCER ---
+
+const BPM = 140;
+const BEAT = 60 / BPM;
+const BAR = BEAT * 4;
+
+let currentBar = 0;
+let nextTime = 0;
+let isPlaying = false;
+let songSection = "INTRO"; // For visuals
+
+function scheduler() {
+    if(!isPlaying) return;
+    while(nextTime < AC.currentTime + 0.1) {
+        playBar(currentBar, nextTime);
+        
+        // Update Section State for Visuals
+        if(currentBar < 8) songSection = "INTRO";
+        else if(currentBar < 16) songSection = "BUILD";
+        else if(currentBar < 32) songSection = "DROP";
+        else if(currentBar < 40) songSection = "BREAK";
+        else if(currentBar < 56) songSection = "DROP";
+        else songSection = "OUTRO";
+
+        nextTime += BAR;
+        currentBar++;
+    }
+    setTimeout(scheduler, 50);
+}
+
+function playBar(bar, t) {
+    if (bar < 8) {
+        if(bar % 2 === 0) bass(t, BAR, 'F', 'REESE');
+        else bass(t, BAR, 'C#', 'REESE');
+        for(let i=0; i<16; i++) if(i%2!==0) hat(t + i*(BEAT/4), false);
+        if(bar > 3) { kick(t); kick(t + BEAT*2.5); }
+    }
+    else if (bar < 16) {
+        const intensity = (bar - 8) / 8;
+        let subdivision = BEAT;
+        if(bar >= 12) subdivision = BEAT/2;
+        if(bar >= 14) subdivision = BEAT/4;
+        if(bar === 15) subdivision = BEAT/8;
+        for(let time = 0; time < BAR; time += subdivision) snare(t + time);
+        
+        const osc = AC.createOscillator();
+        osc.frequency.setValueAtTime(200 + (bar-8)*100, t);
+        osc.frequency.linearRampToValueAtTime(200 + (bar-7)*100, t+BAR);
+        const g = AC.createGain();
+        g.gain.value = 0.2 * intensity;
+        osc.connect(g); g.connect(MASTER);
+        osc.start(t); osc.stop(t+BAR);
+    }
+    else if (bar < 32) {
+        kick(t); snare(t + BEAT*2); kick(t + BEAT*3.5);
+        const local = bar % 4;
+        if (local === 0) { bass(t, BEAT*2.5, 'F', 'GROWL'); bass(t + BEAT*3, BEAT, 'F', 'WOBBLE'); }
+        else if (local === 1) { bass(t, BEAT, 'G#', 'GROWL'); bass(t + BEAT, BEAT, 'G#', 'GROWL'); bass(t + BEAT*2.5, BEAT*1.5, 'C', 'WOBBLE'); }
+        else if (local === 2) { bass(t, BEAT*2, 'F', 'GROWL'); bass(t + BEAT*2, BEAT*2, 'F', 'GROWL'); }
+        else { bass(t, BEAT, 'C#', 'WOBBLE'); bass(t + BEAT, BEAT, 'C', 'WOBBLE'); bass(t + BEAT*2, BEAT, 'A#', 'WOBBLE'); bass(t + BEAT*3, BEAT, 'G#', 'WOBBLE'); }
+    }
+    else if (bar < 40) {
+        const arp = [440, 523, 698, 880];
+        for(let i=0; i<16; i++) lead(t + i*(BEAT/4), arp[i%4] * (bar%2==0 ? 1 : 1.5));
+        bass(t, BAR, 'F', 'REESE');
+    }
+    else if (bar < 56) {
+        kick(t); snare(t+BEAT*2); if(bar % 2 === 0) kick(t+BEAT*1.5);
+        const triplet = BEAT/3;
+        for(let i=0; i<12; i++) if(Math.random() > 0.5) bass(t + i*triplet, triplet, 'F', 'GROWL');
+        if(bar % 4 === 3) lead(t, 880); 
+    }
+}
+
+// --- VISUAL ENGINE (REACTIVE HEART) ---
+
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let points = [];
+const N_POINTS = 300;
+
+// Generate Heart Shape
+for(let i=0; i<N_POINTS; i++) {
+    const t = (i/N_POINTS)*Math.PI*2;
+    const x = 16 * Math.pow(Math.sin(t), 3);
+    const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+    points.push({x, y});
+}
+
+function draw() {
+    requestAnimationFrame(draw);
+    
+    // Canvas Sizing
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+
+    // Get Audio Data
+    const bufferLength = ANALYSER.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    ANALYSER.getByteFrequencyData(dataArray);
+    
+    // 1. Calculate BASS ENERGY (0-100)
+    // We average the first 20 bins (low frequencies)
+    let bassEnergy = 0;
+    for(let i=0; i<20; i++) bassEnergy += dataArray[i];
+    bassEnergy /= 20; 
+    
+    // Normalize to 0.0 - 1.0
+    const bassLevel = bassEnergy / 255; 
+
+    // 2. Detect "Kick" for Impact
+    const isKick = bassLevel > 0.8;
+
+    // Background reaction
+    if (songSection === 'DROP' && isKick) {
+        ctx.fillStyle = '#220000'; // Flash dark red on kick
+    } else {
+        ctx.fillStyle = '#000000';
+    }
+    ctx.fillRect(0,0,canvas.width, canvas.height);
+
+    ctx.save();
+    ctx.translate(cx, cy);
+
+    // --- HEART MOVEMENT LOGIC ---
+
+    // SCALE: Pulse with the bass.
+    // Base scale + Bass Multiplier
+    const scale = 1 + (bassLevel * 0.8); 
+    ctx.scale(scale, scale);
+
+    // ROTATE: Slow spin normally, jerk on kick
+    const time = Date.now() / 1000;
+    let rotation = Math.sin(time) * 0.1; 
+    if(songSection === 'DROP') rotation += (Math.random()-0.5) * bassLevel * 0.5;
+    ctx.rotate(rotation);
+
+    // COLOR
+    let color = '#ff003c';
+    if(songSection === 'BUILD') color = `hsl(${time * 100}, 100%, 50%)`;
+    if(songSection === 'DROP' && isKick) color = '#ffffff'; // White flash
+
+    // DRAW HEART
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 5 + (bassLevel * 10); // Thicker line on bass
+    ctx.shadowBlur = 20 + (bassLevel * 50); // Glow more on bass
+    ctx.shadowColor = color;
+
+    // Resize factor for screen
+    const r = Math.min(canvas.width, canvas.height) / 45;
+
+    // Get Time Domain Data for "Wiggle"
+    const waveData = new Uint8Array(bufferLength);
+    ANALYSER.getByteTimeDomainData(waveData);
+
+    for(let i=0; i<N_POINTS; i++) {
+        const p = points[i];
+        
+        // Map point to audio wave
+        const idx = Math.floor((i/N_POINTS) * bufferLength);
+        const waveVal = (waveData[idx] / 128.0) - 1.0; // -1 to 1
+
+        // Distortion amount depends on song section
+        let distortion = 1 + (waveVal * 0.2); // Mild default
+        if(songSection === 'DROP') distortion = 1 + (waveVal * 0.6); // Heavy distort
+        if(songSection === 'BUILD') distortion = 1 + (waveVal * (bassLevel)); // Rising distort
+
+        const px = p.x * r * distortion;
+        const py = p.y * r * distortion;
+
+        if(i===0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+    }
+    
+    ctx.closePath();
+    ctx.stroke();
+
+    // Fill Center
+    ctx.fillStyle = color;
+    ctx.globalAlpha = 0.1 + (bassLevel * 0.4); // Fill opacity reacts to bass
+    ctx.fill();
+
+    ctx.restore();
+
+    // --- GLITCH OVERLAY ON DROP ---
+    if(songSection === 'DROP') {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+        // Random horizontal scanlines
+        for(let i=0; i<10; i++) {
+            const y = Math.random() * canvas.height;
+            const h = Math.random() * 20;
+            ctx.fillRect(0, y, canvas.width, h);
+        }
+    }
+}
+
+// --- INIT ---
+
+document.body.addEventListener('click', () => {
+    if(isPlaying) return;
+    AC.resume();
+    isPlaying = true;
+    document.getElementById('click-prompt').style.display = 'none';
+    
+    nextTime = AC.currentTime + 0.1;
+    scheduler();
+    draw();
+});
+
+</script>
+</body>
+</html>
