@@ -6,7 +6,6 @@
     <title>// ICU //</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
-
         body {
             margin: 0;
             background: #000;
@@ -21,7 +20,6 @@
             user-select: none;
             -webkit-user-select: none;
         }
-
         /* --- THE CHASSIS --- */
         #monitor-casing {
             width: 95vw;
@@ -40,7 +38,6 @@
             justify-content: center;
             align-items: center;
         }
-
         /* SCREEN INTERNALS */
         #screen {
             width: 100%;
@@ -48,19 +45,18 @@
             position: relative;
             background-color: #000000;
             /* CRT Scanline Effect */
-            background-image: 
-                linear-gradient(rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.5) 50%), 
+            background-image:
+                linear-gradient(rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.5) 50%),
                 linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
             background-size: 100% 4px, 3px 100%;
             box-shadow: inset 0 0 150px rgba(0,0,0,1);
             z-index: 1;
         }
-
         /* GRID OVERLAY */
         #grid {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-image: 
+            background-image:
                 linear-gradient(rgba(0, 255, 50, 0.15) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 255, 50, 0.15) 1px, transparent 1px);
             background-size: 50px 50px;
@@ -68,14 +64,12 @@
             pointer-events: none;
             opacity: 0.8;
         }
-
         canvas {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: 5;
             filter: blur(0.5px) contrast(1.5);
         }
-
         /* UI ELEMENTS */
         #sidebar {
             position: absolute;
@@ -89,14 +83,12 @@
             transform-origin: top right;
             transition: transform 0.3s ease;
         }
-
         .module {
             background: rgba(0, 10, 0, 0.8);
             border-left: 4px solid #003300;
             padding: 10px 15px;
             backdrop-filter: blur(2px);
         }
-
         .label {
             font-size: 12px;
             color: #008800;
@@ -106,7 +98,7 @@
             margin-bottom: 5px;
             font-weight: bold;
         }
-        
+       
         .value {
             font-size: 45px;
             line-height: 45px;
@@ -114,13 +106,10 @@
             text-shadow: 0 0 15px currentColor;
             font-weight: bold;
         }
-
         .sub-value { font-size: 16px; color: #006600; text-align: right; margin-top: 5px;}
-
         .color-bpm { color: #2ecc71; text-shadow: 0 0 10px #2ecc71; }
         .color-spo2 { color: #3498db; text-shadow: 0 0 10px #3498db; }
         .color-bp { color: #e74c3c; text-shadow: 0 0 10px #e74c3c; }
-
         #header {
             position: absolute;
             top: 30px; left: 30px;
@@ -134,11 +123,10 @@
         }
         #patient-name { font-size: 28px; color: #fff; letter-spacing: 1px; text-shadow: 0 0 5px rgba(255,255,255,0.5); font-weight: bold; }
         #timestamp { font-size: 14px; color: #008800; margin-top: 5px; letter-spacing: 2px; }
-
         /* ALERT BOX */
         #alert-box {
             position: absolute;
-            bottom: 10%; 
+            bottom: 10%;
             left: 50%;
             transform: translateX(-50%);
             z-index: 15;
@@ -156,7 +144,6 @@
             width: 60%;
             box-sizing: border-box;
         }
-
         #click-prompt {
             position: absolute;
             top: 50%; left: 50%;
@@ -176,35 +163,33 @@
             white-space: nowrap;
         }
         #click-prompt:hover { background: #0f0; color: #000; box-shadow: 0 0 80px #0f0; }
-        
+       
         .critical { animation: flashCrit 0.15s infinite; }
-        @keyframes flashCrit { 
-            0% { background: rgba(50,0,0,0.9); color:#f00; border-color:#f00; } 
-            50% { background: rgba(255,0,0,0.4); color:#fff; border-color:#fff;} 
-            100% { background: rgba(50,0,0,0.9); color:#f00; border-color:#f00;} 
+        @keyframes flashCrit {
+            0% { background: rgba(50,0,0,0.9); color:#f00; border-color:#f00; }
+            50% { background: rgba(255,0,0,0.4); color:#fff; border-color:#fff;}
+            100% { background: rgba(50,0,0,0.9); color:#f00; border-color:#f00;}
         }
-
         /* --- RESPONSIVE OPTIMIZATION --- */
-        
+       
         /* Tablets & Small Laptops */
         @media (max-width: 1024px) {
             #sidebar { transform: scale(0.85); top: 20px; right: 20px; }
             #header { transform: scale(0.85); top: 20px; left: 20px; }
         }
-
         /* Mobile Landscape & Small Screens */
         @media (max-width: 800px), (max-height: 600px) {
-            #sidebar { 
-                transform: scale(0.65); 
-                top: 10px; 
-                right: 10px; 
+            #sidebar {
+                transform: scale(0.65);
+                top: 10px;
+                right: 10px;
                 width: 200px;
             }
-            #header { 
-                transform: scale(0.65); 
-                top: 10px; 
+            #header {
+                transform: scale(0.65);
+                top: 10px;
                 left: 10px;
-                width: 280px; 
+                width: 280px;
             }
             .value { font-size: 40px; } /* Slightly smaller base font */
             #alert-box {
@@ -218,65 +203,59 @@
                 font-size: 16px;
             }
         }
-
     </style>
 </head>
 <body>
-
 <div id="monitor-casing">
     <div id="screen">
         <div id="grid"></div>
-        
+       
         <div id="header">
             <div id="patient-name">SUBJECT: HEIDI</div>
             <div id="timestamp">SYS.STATUS: LOCKED</div>
         </div>
-
         <div id="sidebar">
             <div class="module">
                 <div class="label"><span>HR</span> <span>BPM</span></div>
                 <div class="value color-bpm" id="bpm-display">--</div>
             </div>
-            
+           
             <div class="module">
                 <div class="label"><span>SpO2</span> <span>%</span></div>
                 <div class="value color-spo2" id="spo2-display">--</div>
             </div>
-
             <div class="module">
                 <div class="label"><span>NIBP</span> <span>mmHg</span></div>
                 <div class="value color-bp" style="font-size: 35px;" id="bp-display">-- / --</div>
                 <div class="sub-value">MAP (100)</div>
             </div>
         </div>
-
         <div id="alert-box">
             <div>// !!!CARDIAC ARREST!!! //</div>
         </div>
-
         <canvas id="c"></canvas>
     </div>
 </div>
-
 <div id="click-prompt">[ INITIALIZE ]</div>
-
 <script>
 // --- AUDIO ENGINE ---
 const AC = new (window.AudioContext || window.webkitAudioContext)();
 const MASTER = AC.createGain();
 const LIMITER = AC.createDynamicsCompressor();
 const ANALYSER = AC.createAnalyser();
-
 MASTER.gain.value = 0.6;
+LIMITER.threshold.value = -6;
+LIMITER.knee.value = 10;
+LIMITER.ratio.value = 12;
+LIMITER.attack.value = 0.003;
+LIMITER.release.value = 0.25;
 LIMITER.connect(ANALYSER);
 ANALYSER.connect(AC.destination);
-ANALYSER.fftSize = 2048; 
-ANALYSER.smoothingTimeConstant = 0.85; 
+ANALYSER.fftSize = 2048;
+ANALYSER.smoothingTimeConstant = 0.85;
 MASTER.connect(LIMITER);
-
 // --- VITALS SIMULATOR ---
 let vitals = { bpm: 140, spo2: 98, sys: 120, dia: 80 };
-
 setInterval(() => {
     if (!isPlaying) return;
     vitals.spo2 = 96 + Math.floor(Math.random() * 4);
@@ -287,20 +266,18 @@ setInterval(() => {
     const d = new Date();
     document.getElementById('timestamp').innerText = "UPDATED: " + d.toLocaleTimeString();
 }, 1000);
-
 function flashBPM() {
     const el = document.getElementById('bpm-display');
     const drift = (Math.random()-0.5);
     el.innerText = Math.floor(140 + drift);
     el.style.opacity = 1;
     el.style.textShadow = "0 0 25px #fff";
-    setTimeout(() => { 
-        el.style.opacity = 0.8; 
+    setTimeout(() => {
+        el.style.opacity = 0.8;
         el.style.textShadow = "0 0 10px currentColor";
     }, 100);
 }
-
-// --- AUDIO DSP ---
+// --- AUDIO DSP (STICKING CLOSER TO ORIGINAL, NO EXTRA WAVEFORMS) ---
 function kick(t) {
     const osc = AC.createOscillator();
     const g = AC.createGain();
@@ -309,11 +286,10 @@ function kick(t) {
     g.gain.setValueAtTime(1, t);
     g.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
     const d = AC.createWaveShaper();
-    d.curve = new Float32Array([-1, 1]); 
+    d.curve = new Float32Array([-1, 1]);
     osc.connect(d); d.connect(g); g.connect(MASTER);
     osc.start(t); osc.stop(t+0.4);
 }
-
 function snare(t) {
     const buf = AC.createBuffer(1, AC.sampleRate*0.2, AC.sampleRate);
     const d = buf.getChannelData(0);
@@ -337,7 +313,6 @@ function snare(t) {
     osc.connect(og); og.connect(MASTER);
     osc.start(t); osc.stop(t+0.1);
 }
-
 function hat(t, open) {
     const buf = AC.createBuffer(1, AC.sampleRate*0.05, AC.sampleRate);
     const d = buf.getChannelData(0);
@@ -353,7 +328,6 @@ function hat(t, open) {
     n.connect(f); f.connect(g); g.connect(MASTER);
     n.start(t);
 }
-
 function bass(t, dur, note, type) {
     const osc = AC.createOscillator();
     const mod = AC.createOscillator();
@@ -361,10 +335,8 @@ function bass(t, dur, note, type) {
     const filter = AC.createBiquadFilter();
     const dist = AC.createWaveShaper();
     const amp = AC.createGain();
-
     const freqs = { 'F': 43.65, 'G#': 51.91, 'A#': 58.27, 'C': 65.41, 'C#': 69.30 };
     const f = freqs[note] || 43.65;
-
     function makeCurve(amount) {
         const k = amount;
         const n_samples = 44100;
@@ -376,20 +348,18 @@ function bass(t, dur, note, type) {
         return curve;
     }
     dist.curve = makeCurve(300);
-
     osc.frequency.setValueAtTime(f, t);
     mod.frequency.setValueAtTime(f, t);
-
     if (type === 'WOBBLE') {
         osc.type = 'sawtooth';
         mod.type = 'sine';
-        modG.gain.value = 100; 
+        modG.gain.value = 100;
         filter.type = 'lowpass';
         filter.Q.value = 10;
         filter.frequency.setValueAtTime(100, t);
         filter.frequency.linearRampToValueAtTime(1200, t + dur/2);
         filter.frequency.linearRampToValueAtTime(100, t + dur);
-    } 
+    }
     else if (type === 'GROWL') {
         osc.type = 'sawtooth';
         mod.type = 'square';
@@ -410,7 +380,6 @@ function bass(t, dur, note, type) {
         filter.frequency.value = 1200;
         mod.connect(amp);
     }
-
     if (type !== 'REESE') {
         mod.connect(modG);
         modG.connect(osc.frequency);
@@ -421,16 +390,13 @@ function bass(t, dur, note, type) {
         osc.connect(filter);
         filter.connect(amp);
     }
-
     amp.connect(MASTER);
     amp.gain.setValueAtTime(0, t);
     amp.gain.linearRampToValueAtTime(type==='REESE'?0.6:1, t+0.05);
     amp.gain.linearRampToValueAtTime(0, t+dur);
-
     osc.start(t); mod.start(t);
     osc.stop(t+dur); mod.stop(t+dur);
 }
-
 function lead(t, note) {
     const osc = AC.createOscillator();
     osc.type = 'square';
@@ -439,7 +405,7 @@ function lead(t, note) {
     g.gain.setValueAtTime(0.1, t);
     g.gain.exponentialRampToValueAtTime(0.001, t+0.15);
     const delay = AC.createDelay();
-    delay.delayTime.value = 0.214; 
+    delay.delayTime.value = 0.214;
     const fb = AC.createGain();
     fb.gain.value = 0.4;
     osc.connect(g);
@@ -450,51 +416,45 @@ function lead(t, note) {
     delay.connect(MASTER);
     osc.start(t); osc.stop(t+0.2);
 }
-
-// --- SEQUENCER ---
+// --- SEQUENCER (BACK TO ORIGINAL THEME, NO EXTRA SOUNDS) ---
 const BPM = 140;
 const BEAT = 60 / BPM;
 const BAR = BEAT * 4;
-
 let currentBar = 0;
 let nextTime = 0;
 let isPlaying = false;
 let section = "IDLE";
-
 function scheduler() {
     if(!isPlaying) return;
     while(nextTime < AC.currentTime + 0.1) {
         playBar(currentBar, nextTime);
-        
+       
         if(currentBar < 8) section = "INTRO";
         else if(currentBar < 16) section = "BUILD";
         else if(currentBar < 32) section = "DROP";
         else if(currentBar < 40) section = "BREAK";
         else if(currentBar < 56) section = "DROP";
         else section = "OUTRO";
-        
+       
         // --- REACTIVE UI LOGIC ---
         const alertBox = document.getElementById('alert-box');
-        
+       
         if (section === "DROP") {
             alertBox.style.display = "block";
             alertBox.classList.add("critical");
-        } 
+        }
         else {
             alertBox.style.display = "none";
             alertBox.classList.remove("critical");
         }
-
         for(let i=0; i<4; i++) {
              setTimeout(flashBPM, (nextTime - AC.currentTime + i*BEAT) * 1000);
         }
-
         nextTime += BAR;
         currentBar++;
     }
     setTimeout(scheduler, 50);
 }
-
 function playBar(bar, t) {
     if (bar < 8) {
         if(bar % 2 === 0) bass(t, BAR, 'F', 'REESE');
@@ -509,13 +469,6 @@ function playBar(bar, t) {
         if(bar >= 14) subdivision = BEAT/4;
         if(bar === 15) subdivision = BEAT/8;
         for(let time = 0; time < BAR; time += subdivision) snare(t + time);
-        const osc = AC.createOscillator();
-        osc.frequency.setValueAtTime(200 + (bar-8)*100, t);
-        osc.frequency.linearRampToValueAtTime(200 + (bar-7)*100, t+BAR);
-        const g = AC.createGain();
-        g.gain.value = 0.2 * intensity;
-        osc.connect(g); g.connect(MASTER);
-        osc.start(t); osc.stop(t+BAR);
     }
     else if (bar < 32) {
         kick(t); snare(t + BEAT*2); kick(t + BEAT*3.5);
@@ -534,17 +487,14 @@ function playBar(bar, t) {
         kick(t); snare(t+BEAT*2); if(bar % 2 === 0) kick(t+BEAT*1.5);
         const triplet = BEAT/3;
         for(let i=0; i<12; i++) if(Math.random() > 0.5) bass(t + i*triplet, triplet, 'F', 'GROWL');
-        if(bar % 4 === 3) lead(t, 880); 
+        if(bar % 4 === 3) lead(t, 880);
     }
 }
-
 // --- VISUAL RENDERER ---
-
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
 let points = [];
-const N_POINTS = 600; 
-
+const N_POINTS = 600;
 // Calculate Heart Points
 for(let i=0; i<N_POINTS; i++) {
     const t = (i/N_POINTS)*Math.PI*2;
@@ -552,7 +502,6 @@ for(let i=0; i<N_POINTS; i++) {
     const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
     points.push({x, y});
 }
-
 // Particle System
 let particles = [];
 class Particle {
@@ -568,21 +517,19 @@ class Particle {
     update() {
         this.x += this.vx;
         this.y += this.vy;
-        this.life -= 0.03; 
+        this.life -= 0.03;
     }
     draw(ctx) {
         ctx.globalAlpha = this.life;
         ctx.fillStyle = this.color;
-        ctx.fillRect(this.x, this.y, 2, 2); 
+        ctx.fillRect(this.x, this.y, 2, 2);
         ctx.globalAlpha = 1;
     }
 }
-
-let dotPos = 0; 
-
+let dotPos = 0;
 function draw() {
     requestAnimationFrame(draw);
-    
+   
     // Resize Logic
     const screenDiv = document.getElementById('screen');
     if(canvas.width !== screenDiv.clientWidth || canvas.height !== screenDiv.clientHeight) {
@@ -591,24 +538,21 @@ function draw() {
     }
     const cx = canvas.width/2;
     const cy = canvas.height/2;
-
     // FADE & CLEAR (TRANSPARENCY FIX)
     ctx.globalCompositeOperation = 'destination-out';
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; 
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.globalCompositeOperation = 'source-over';
-
     const bufferLength = ANALYSER.frequencyBinCount;
     const timeData = new Uint8Array(bufferLength);
     ANALYSER.getByteTimeDomainData(timeData);
     const freqData = new Uint8Array(bufferLength);
     ANALYSER.getByteFrequencyData(freqData);
-    
+   
     // Calculate Bass Energy for Pulse
     let bassVal = 0;
     for(let i=0; i<15; i++) bassVal += freqData[i];
-    bassVal = bassVal / 15 / 255; 
-
+    bassVal = bassVal / 15 / 255;
     // Aesthetic Config
     let mainColor, glowColor, chaos;
     if (section === "DROP") {
@@ -620,37 +564,31 @@ function draw() {
         glowColor = '#ffaa00';
         chaos = false;
     } else {
-        mainColor = '#00ffaa'; 
+        mainColor = '#00ffaa';
         glowColor = '#00ff00';
         chaos = false;
     }
-
     // --- DRAW HEART ---
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.globalCompositeOperation = 'lighter'; 
-
+    ctx.globalCompositeOperation = 'lighter';
     const scaleBase = Math.min(canvas.width, canvas.height) / 45;
-    const pulse = 1 + (bassVal * 0.5); 
+    const pulse = 1 + (bassVal * 0.5);
     const scale = scaleBase * pulse;
-
     ctx.beginPath();
     for(let i=0; i<N_POINTS; i++) {
         const p = points[i];
-        
+       
         // Map audio waveform
         const idx = Math.floor((i/N_POINTS) * timeData.length);
         const sig = (timeData[idx] / 128.0) - 1.0;
-        
+       
         let distort = sig * 0.5;
-        if(chaos) distort *= 2.5; 
-
+        if(chaos) distort *= 2.5;
         const px = cx + (p.x * scale * (1 + distort));
         const py = cy + (p.y * scale * (1 + distort));
-
         if(i===0) ctx.moveTo(px, py);
         else ctx.lineTo(px, py);
-
         // Spawn particles (Limited)
         if (bassVal > 0.65 && Math.random() > 0.97) {
              const speed = chaos ? 8 : 3;
@@ -658,39 +596,34 @@ function draw() {
         }
     }
     ctx.closePath();
-    
+   
     // Draw styles
     ctx.shadowBlur = 0;
     ctx.strokeStyle = mainColor;
     ctx.lineWidth = 2;
     ctx.stroke();
-
     ctx.shadowBlur = 20;
     ctx.shadowColor = glowColor;
     ctx.lineWidth = 4;
     ctx.strokeStyle = glowColor;
     ctx.stroke();
-
     // --- THE SCANNER DOT (AUDIO REACTIVE) ---
     // Base speed (0.003) + Surge speed based on bass
-    const speed = 0.003 + (bassVal * 0.05); 
+    const speed = 0.003 + (bassVal * 0.05);
     dotPos += speed;
     if(dotPos >= 1) dotPos = 0;
-
     const dotIdx = Math.floor(dotPos * N_POINTS);
     const pDot = points[dotIdx];
     const pxDot = cx + (pDot.x * scale);
     const pyDot = cy + (pDot.y * scale);
-    
+   
     ctx.beginPath();
     ctx.shadowBlur = 15;
     ctx.shadowColor = '#fff';
     ctx.fillStyle = '#fff';
     ctx.arc(pxDot, pyDot, 5, 0, Math.PI*2);
     ctx.fill();
-
-    ctx.globalCompositeOperation = 'source-over'; 
-
+    ctx.globalCompositeOperation = 'source-over';
     // --- PARTICLES ---
     for(let i=particles.length-1; i>=0; i--) {
         particles[i].update();
@@ -698,19 +631,17 @@ function draw() {
         if(particles[i].life <= 0) particles.splice(i, 1);
     }
 }
-
 document.getElementById('click-prompt').addEventListener('click', () => {
     if(isPlaying) return;
     AC.resume().then(() => {
         isPlaying = true;
         document.getElementById('click-prompt').style.display = 'none';
-        
+       
         nextTime = AC.currentTime + 0.1;
         scheduler();
         draw();
     });
 });
-
 </script>
 </body>
 </html>
