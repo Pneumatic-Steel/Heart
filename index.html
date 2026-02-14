@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ICU</title>
+    <title>!!ICU!!</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
@@ -531,24 +531,18 @@ let dotPos = 0; // NEW: Track position of the scanner dot
 function draw() {
     requestAnimationFrame(draw);
     
-    // --- HIGH-DPI FIX ---
-    // This checks if the screen resolution (Retina/Mobile) is higher than the canvas size
-    const dpr = window.devicePixelRatio || 1;
-    const rect = document.getElementById('screen').getBoundingClientRect();
-    
-    if(canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
-        canvas.width = rect.width * dpr;
-        canvas.height = rect.height * dpr;
-        ctx.scale(dpr, dpr); // Scale context to match
+    // Resize
+    if(canvas.width !== document.getElementById('screen').clientWidth) {
+        canvas.width = document.getElementById('screen').clientWidth;
+        canvas.height = document.getElementById('screen').clientHeight;
     }
-
-    const cx = rect.width/2;
-    const cy = rect.height/2;
+    const cx = canvas.width/2;
+    const cy = canvas.height/2;
 
     // FADE & CLEAR (TRANSPARENCY FIX)
     ctx.globalCompositeOperation = 'destination-out';
     ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; 
-    ctx.fillRect(0, 0, rect.width, rect.height);
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.globalCompositeOperation = 'source-over';
 
     const bufferLength = ANALYSER.frequencyBinCount;
@@ -583,7 +577,7 @@ function draw() {
     ctx.lineJoin = 'round';
     ctx.globalCompositeOperation = 'lighter'; 
 
-    const scaleBase = Math.min(rect.width, rect.height) / 45;
+    const scaleBase = Math.min(canvas.width, canvas.height) / 45;
     const pulse = 1 + (bassVal * 0.5); 
     const scale = scaleBase * pulse;
 
@@ -666,4 +660,3 @@ document.getElementById('click-prompt').addEventListener('click', () => {
 </script>
 </body>
 </html>
-
