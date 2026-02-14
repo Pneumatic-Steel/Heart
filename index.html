@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FINAL // HEART // ENGINE</title>
+    <title>ICU // MONITOR // FINAL_LOVE_V3</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
         body {
             margin: 0;
             background: #000;
@@ -13,61 +15,240 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            cursor: pointer;
+            color: #0f0;
+            font-family: 'Share Tech Mono', monospace;
+            user-select: none;
+        }
+
+        /* --- THE CHASSIS --- */
+        #monitor-casing {
+            width: 95vw;
+            height: 90vh;
+            background: #000;
+            border: 6px solid #1a1a1a;
+            border-radius: 10px;
+            box-shadow: 0 0 100px rgba(0,255,0,0.02);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* SCREEN INTERNALS */
+        #screen {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background-color: #000000;
+            /* CRT Scanline Effect */
+            background-image: 
+                linear-gradient(rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.5) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 4px, 3px 100%;
+            box-shadow: inset 0 0 150px rgba(0,0,0,1);
+            z-index: 1;
+        }
+
+        /* GRID OVERLAY */
+        #grid {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 50, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 50, 0.15) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 2;
+            pointer-events: none;
+            opacity: 0.8;
         }
 
         canvas {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 5;
+            filter: blur(0.5px) contrast(1.5);
+        }
+
+        /* UI ELEMENTS */
+        #sidebar {
+            position: absolute;
+            top: 30px; right: 30px;
+            width: 220px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            pointer-events: none;
+        }
+
+        .module {
+            background: rgba(0, 10, 0, 0.8);
+            border-left: 4px solid #003300;
+            padding: 10px 15px;
+            backdrop-filter: blur(2px);
+        }
+
+        .label {
+            font-size: 12px;
+            color: #008800;
+            display: flex;
+            justify-content: space-between;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .value {
+            font-size: 45px;
+            line-height: 45px;
+            color: #ccffcc;
+            text-shadow: 0 0 15px currentColor;
+            font-weight: bold;
+        }
+
+        .sub-value { font-size: 16px; color: #006600; text-align: right; margin-top: 5px;}
+
+        .color-bpm { color: #2ecc71; text-shadow: 0 0 10px #2ecc71; }
+        .color-spo2 { color: #3498db; text-shadow: 0 0 10px #3498db; }
+        .color-bp { color: #e74c3c; text-shadow: 0 0 10px #e74c3c; }
+
+        #header {
+            position: absolute;
+            top: 30px; left: 30px;
+            z-index: 10;
+            pointer-events: none;
+            border-bottom: 2px solid #003300;
+            padding-bottom: 10px;
+            width: 350px;
+        }
+        #patient-name { font-size: 28px; color: #fff; letter-spacing: 1px; text-shadow: 0 0 5px rgba(255,255,255,0.5); font-weight: bold; }
+        #timestamp { font-size: 14px; color: #008800; margin-top: 5px; letter-spacing: 2px; }
+
+        /* ALERT BOX */
+        #alert-box {
+            position: absolute;
+            bottom: 60px; left: 50%;
+            transform: translateX(-50%);
+            z-index: 15;
+            font-size: 30px;
+            background: rgba(20, 0, 0, 0.9);
+            border: 2px solid #ff0000;
+            color: #ff0000;
+            padding: 15px 60px;
+            letter-spacing: 5px;
+            font-weight: bold;
+            display: none;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.6);
+            text-align: center;
+            text-shadow: 0 0 10px #f00;
         }
 
         #click-prompt {
             position: absolute;
-            z-index: 10;
-            color: #ff003c;
-            font-family: monospace;
-            letter-spacing: 5px;
-            font-size: 14px;
-            pointer-events: none;
-            opacity: 0.5;
-            animation: pulse 2s infinite;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            font-size: 20px;
+            background: rgba(0,0,0,0.9);
+            border: 2px solid #0f0;
+            color: #0f0;
+            padding: 25px 50px;
+            cursor: pointer;
+            box-shadow: 0 0 30px #0f0;
+            letter-spacing: 4px;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        #click-prompt:hover { background: #0f0; color: #000; box-shadow: 0 0 80px #0f0; }
+        
+        .critical { animation: flashCrit 0.15s infinite; }
+        @keyframes flashCrit { 
+            0% { background: rgba(50,0,0,0.9); color:#f00; border-color:#f00; } 
+            50% { background: rgba(255,0,0,0.4); color:#fff; border-color:#fff;} 
+            100% { background: rgba(50,0,0,0.9); color:#f00; border-color:#f00;} 
         }
 
-        @keyframes pulse { 0% { opacity: 0.2; } 50% { opacity: 1; } 100% { opacity: 0.2; } }
     </style>
 </head>
 <body>
 
-<div id="click-prompt">[ CLICK TO INITIALIZE ]</div>
-<canvas id="c"></canvas>
+<div id="monitor-casing">
+    <div id="screen">
+        <div id="grid"></div>
+        
+        <div id="header">
+            <div id="patient-name">SUBJECT: HEIDI</div>
+            <div id="timestamp">SYS.STATUS: LOCKED</div>
+        </div>
+
+        <div id="sidebar">
+            <div class="module">
+                <div class="label"><span>HR</span> <span>BPM</span></div>
+                <div class="value color-bpm" id="bpm-display">--</div>
+            </div>
+            
+            <div class="module">
+                <div class="label"><span>SpO2</span> <span>%</span></div>
+                <div class="value color-spo2" id="spo2-display">--</div>
+            </div>
+
+            <div class="module">
+                <div class="label"><span>NIBP</span> <span>mmHg</span></div>
+                <div class="value color-bp" style="font-size: 35px;" id="bp-display">-- / --</div>
+                <div class="sub-value">MAP (100)</div>
+            </div>
+        </div>
+
+        <div id="alert-box">
+            <div>// !!!CARDIAC ARREST!!! //</div>
+        </div>
+
+        <canvas id="c"></canvas>
+    </div>
+</div>
+
+<div id="click-prompt">[ INITIALIZE ]</div>
 
 <script>
-/**
- * AUDIO ENGINE: "THE FULL ARRANGEMENT"
- * (Identical to previous version)
- */
-
+// --- AUDIO ENGINE ---
 const AC = new (window.AudioContext || window.webkitAudioContext)();
 const MASTER = AC.createGain();
 const LIMITER = AC.createDynamicsCompressor();
 const ANALYSER = AC.createAnalyser();
 
-// Master Chain
-MASTER.gain.value = 0.7;
-LIMITER.threshold.value = -8;
-LIMITER.ratio.value = 20;
-LIMITER.attack.value = 0.001; 
-MASTER.connect(LIMITER);
+MASTER.gain.value = 0.6;
 LIMITER.connect(ANALYSER);
 ANALYSER.connect(AC.destination);
-ANALYSER.fftSize = 256; // Fast reaction time
+ANALYSER.fftSize = 2048; 
+ANALYSER.smoothingTimeConstant = 0.85; 
+MASTER.connect(LIMITER);
 
-// --- SYNTHESIS ---
+// --- VITALS SIMULATOR ---
+let vitals = { bpm: 140, spo2: 98, sys: 120, dia: 80 };
 
+setInterval(() => {
+    if (!isPlaying) return;
+    vitals.spo2 = 96 + Math.floor(Math.random() * 4);
+    vitals.sys = 118 + Math.floor(Math.random() * 5);
+    vitals.dia = 78 + Math.floor(Math.random() * 5);
+    document.getElementById('spo2-display').innerText = vitals.spo2;
+    document.getElementById('bp-display').innerText = `${vitals.sys} / ${vitals.dia}`;
+    const d = new Date();
+    document.getElementById('timestamp').innerText = "UPDATED: " + d.toLocaleTimeString();
+}, 1000);
+
+function flashBPM() {
+    const el = document.getElementById('bpm-display');
+    const drift = (Math.random()-0.5);
+    el.innerText = Math.floor(140 + drift);
+    el.style.opacity = 1;
+    el.style.textShadow = "0 0 25px #fff";
+    setTimeout(() => { 
+        el.style.opacity = 0.8; 
+        el.style.textShadow = "0 0 10px currentColor";
+    }, 100);
+}
+
+// --- AUDIO DSP ---
 function kick(t) {
     const osc = AC.createOscillator();
     const g = AC.createGain();
@@ -75,7 +256,9 @@ function kick(t) {
     osc.frequency.exponentialRampToValueAtTime(40, t + 0.1);
     g.gain.setValueAtTime(1, t);
     g.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
-    osc.connect(g); g.connect(MASTER);
+    const d = AC.createWaveShaper();
+    d.curve = new Float32Array([-1, 1]); 
+    osc.connect(d); d.connect(g); g.connect(MASTER);
     osc.start(t); osc.stop(t+0.4);
 }
 
@@ -89,33 +272,32 @@ function snare(t) {
     f.type = 'highpass';
     f.frequency.value = 1000;
     const g = AC.createGain();
-    g.gain.setValueAtTime(0.8, t);
+    g.gain.setValueAtTime(1, t);
     g.gain.exponentialRampToValueAtTime(0.01, t+0.2);
     n.connect(f); f.connect(g); g.connect(MASTER);
     n.start(t);
-
     const osc = AC.createOscillator();
     osc.type = 'triangle';
     osc.frequency.setValueAtTime(200, t);
     const og = AC.createGain();
-    og.gain.setValueAtTime(0.5, t);
+    og.gain.setValueAtTime(0.8, t);
     og.gain.exponentialRampToValueAtTime(0.01, t+0.1);
     osc.connect(og); og.connect(MASTER);
     osc.start(t); osc.stop(t+0.1);
 }
 
 function hat(t, open) {
-    const buf = AC.createBuffer(1, AC.sampleRate*0.1, AC.sampleRate);
+    const buf = AC.createBuffer(1, AC.sampleRate*0.05, AC.sampleRate);
     const d = buf.getChannelData(0);
     for(let i=0; i<d.length; i++) d[i]=(Math.random()*2-1);
     const n = AC.createBufferSource();
     n.buffer = buf;
     const f = AC.createBiquadFilter();
     f.type = 'highpass';
-    f.frequency.value = 5000;
+    f.frequency.value = 6000;
     const g = AC.createGain();
-    g.gain.value = open ? 0.3 : 0.1;
-    g.gain.exponentialRampToValueAtTime(0.01, t + (open ? 0.1 : 0.05));
+    g.gain.value = open ? 0.2 : 0.05;
+    g.gain.exponentialRampToValueAtTime(0.01, t + 0.05);
     n.connect(f); f.connect(g); g.connect(MASTER);
     n.start(t);
 }
@@ -131,15 +313,17 @@ function bass(t, dur, note, type) {
     const freqs = { 'F': 43.65, 'G#': 51.91, 'A#': 58.27, 'C': 65.41, 'C#': 69.30 };
     const f = freqs[note] || 43.65;
 
-    function makeCurve(k) {
-        const c = new Float32Array(44100);
-        for(let i=0; i<44100; i++) {
-            let x = i*2/44100-1;
-            c[i] = (3+k)*x*20*(Math.PI/180)/(Math.PI+k*Math.abs(x));
+    function makeCurve(amount) {
+        const k = amount;
+        const n_samples = 44100;
+        const curve = new Float32Array(n_samples);
+        for (let i = 0; i < n_samples; ++i) {
+            const x = i * 2 / n_samples - 1;
+            curve[i] = (3 + k) * x * 20 * (Math.PI / 180) / (Math.PI + k * Math.abs(x));
         }
-        return c;
+        return curve;
     }
-    dist.curve = makeCurve(400);
+    dist.curve = makeCurve(300);
 
     osc.frequency.setValueAtTime(f, t);
     mod.frequency.setValueAtTime(f, t);
@@ -149,7 +333,7 @@ function bass(t, dur, note, type) {
         mod.type = 'sine';
         modG.gain.value = 100; 
         filter.type = 'lowpass';
-        filter.Q.value = 8;
+        filter.Q.value = 10;
         filter.frequency.setValueAtTime(100, t);
         filter.frequency.linearRampToValueAtTime(1200, t + dur/2);
         filter.frequency.linearRampToValueAtTime(100, t + dur);
@@ -157,12 +341,12 @@ function bass(t, dur, note, type) {
     else if (type === 'GROWL') {
         osc.type = 'sawtooth';
         mod.type = 'square';
-        modG.gain.setValueAtTime(f*2, t);
+        modG.gain.setValueAtTime(f*3, t);
         filter.type = 'peaking';
-        filter.Q.value = 2;
-        filter.gain.value = 20;
-        filter.frequency.setValueAtTime(300, t);
-        filter.frequency.linearRampToValueAtTime(2000, t + dur);
+        filter.Q.value = 1;
+        filter.gain.value = 25;
+        filter.frequency.setValueAtTime(400, t);
+        filter.frequency.linearRampToValueAtTime(2500, t + dur);
     }
     else if (type === 'REESE') {
         osc.type = 'sawtooth';
@@ -171,7 +355,7 @@ function bass(t, dur, note, type) {
         mod.frequency.setValueAtTime(f+1, t);
         modG.gain.value = 0.5;
         filter.type = 'lowpass';
-        filter.frequency.value = 800;
+        filter.frequency.value = 1200;
         mod.connect(amp);
     }
 
@@ -201,25 +385,21 @@ function lead(t, note) {
     osc.frequency.value = note;
     const g = AC.createGain();
     g.gain.setValueAtTime(0.1, t);
-    g.gain.exponentialRampToValueAtTime(0.001, t+0.2);
-    
+    g.gain.exponentialRampToValueAtTime(0.001, t+0.15);
     const delay = AC.createDelay();
-    delay.delayTime.value = 0.2;
+    delay.delayTime.value = 0.214; 
     const fb = AC.createGain();
     fb.gain.value = 0.4;
-    
     osc.connect(g);
     g.connect(MASTER);
     g.connect(delay);
     delay.connect(fb);
     fb.connect(delay);
     delay.connect(MASTER);
-
     osc.start(t); osc.stop(t+0.2);
 }
 
 // --- SEQUENCER ---
-
 const BPM = 140;
 const BEAT = 60 / BPM;
 const BAR = BEAT * 4;
@@ -227,20 +407,35 @@ const BAR = BEAT * 4;
 let currentBar = 0;
 let nextTime = 0;
 let isPlaying = false;
-let songSection = "INTRO"; // For visuals
+let section = "IDLE";
 
 function scheduler() {
     if(!isPlaying) return;
     while(nextTime < AC.currentTime + 0.1) {
         playBar(currentBar, nextTime);
         
-        // Update Section State for Visuals
-        if(currentBar < 8) songSection = "INTRO";
-        else if(currentBar < 16) songSection = "BUILD";
-        else if(currentBar < 32) songSection = "DROP";
-        else if(currentBar < 40) songSection = "BREAK";
-        else if(currentBar < 56) songSection = "DROP";
-        else songSection = "OUTRO";
+        if(currentBar < 8) section = "INTRO";
+        else if(currentBar < 16) section = "BUILD";
+        else if(currentBar < 32) section = "DROP";
+        else if(currentBar < 40) section = "BREAK";
+        else if(currentBar < 56) section = "DROP";
+        else section = "OUTRO";
+        
+        // --- REACTIVE UI LOGIC ---
+        const alertBox = document.getElementById('alert-box');
+        
+        if (section === "DROP") {
+            alertBox.style.display = "block";
+            alertBox.classList.add("critical");
+        } 
+        else {
+            alertBox.style.display = "none";
+            alertBox.classList.remove("critical");
+        }
+
+        for(let i=0; i<4; i++) {
+             setTimeout(flashBPM, (nextTime - AC.currentTime + i*BEAT) * 1000);
+        }
 
         nextTime += BAR;
         currentBar++;
@@ -262,7 +457,6 @@ function playBar(bar, t) {
         if(bar >= 14) subdivision = BEAT/4;
         if(bar === 15) subdivision = BEAT/8;
         for(let time = 0; time < BAR; time += subdivision) snare(t + time);
-        
         const osc = AC.createOscillator();
         osc.frequency.setValueAtTime(200 + (bar-8)*100, t);
         osc.frequency.linearRampToValueAtTime(200 + (bar-7)*100, t+BAR);
@@ -292,14 +486,14 @@ function playBar(bar, t) {
     }
 }
 
-// --- VISUAL ENGINE (REACTIVE HEART) ---
+// --- VISUAL RENDERER ---
 
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
 let points = [];
-const N_POINTS = 300;
+const N_POINTS = 600; 
 
-// Generate Heart Shape
+// Calculate Heart Points
 for(let i=0; i<N_POINTS; i++) {
     const t = (i/N_POINTS)*Math.PI*2;
     const x = 16 * Math.pow(Math.sin(t), 3);
@@ -307,119 +501,158 @@ for(let i=0; i<N_POINTS; i++) {
     points.push({x, y});
 }
 
-function draw() {
-    requestAnimationFrame(draw);
-    
-    // Canvas Sizing
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const cx = canvas.width / 2;
-    const cy = canvas.height / 2;
-
-    // Get Audio Data
-    const bufferLength = ANALYSER.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-    ANALYSER.getByteFrequencyData(dataArray);
-    
-    // 1. Calculate BASS ENERGY (0-100)
-    // We average the first 20 bins (low frequencies)
-    let bassEnergy = 0;
-    for(let i=0; i<20; i++) bassEnergy += dataArray[i];
-    bassEnergy /= 20; 
-    
-    // Normalize to 0.0 - 1.0
-    const bassLevel = bassEnergy / 255; 
-
-    // 2. Detect "Kick" for Impact
-    const isKick = bassLevel > 0.8;
-
-    // Background reaction
-    if (songSection === 'DROP' && isKick) {
-        ctx.fillStyle = '#220000'; // Flash dark red on kick
-    } else {
-        ctx.fillStyle = '#000000';
+// Particle System
+let particles = [];
+class Particle {
+    constructor(x, y, color, speedMulti) {
+        this.x = x; this.y = y;
+        const angle = Math.random() * Math.PI * 2;
+        const spd = (Math.random() * speedMulti) + 0.5;
+        this.vx = Math.cos(angle) * spd;
+        this.vy = Math.sin(angle) * spd;
+        this.life = 1.0;
+        this.color = color;
     }
-    ctx.fillRect(0,0,canvas.width, canvas.height);
-
-    ctx.save();
-    ctx.translate(cx, cy);
-
-    // --- HEART MOVEMENT LOGIC ---
-
-    // SCALE: Pulse with the bass.
-    // Base scale + Bass Multiplier
-    const scale = 1 + (bassLevel * 0.8); 
-    ctx.scale(scale, scale);
-
-    // ROTATE: Slow spin normally, jerk on kick
-    const time = Date.now() / 1000;
-    let rotation = Math.sin(time) * 0.1; 
-    if(songSection === 'DROP') rotation += (Math.random()-0.5) * bassLevel * 0.5;
-    ctx.rotate(rotation);
-
-    // COLOR
-    let color = '#ff003c';
-    if(songSection === 'BUILD') color = `hsl(${time * 100}, 100%, 50%)`;
-    if(songSection === 'DROP' && isKick) color = '#ffffff'; // White flash
-
-    // DRAW HEART
-    ctx.beginPath();
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 5 + (bassLevel * 10); // Thicker line on bass
-    ctx.shadowBlur = 20 + (bassLevel * 50); // Glow more on bass
-    ctx.shadowColor = color;
-
-    // Resize factor for screen
-    const r = Math.min(canvas.width, canvas.height) / 45;
-
-    // Get Time Domain Data for "Wiggle"
-    const waveData = new Uint8Array(bufferLength);
-    ANALYSER.getByteTimeDomainData(waveData);
-
-    for(let i=0; i<N_POINTS; i++) {
-        const p = points[i];
-        
-        // Map point to audio wave
-        const idx = Math.floor((i/N_POINTS) * bufferLength);
-        const waveVal = (waveData[idx] / 128.0) - 1.0; // -1 to 1
-
-        // Distortion amount depends on song section
-        let distortion = 1 + (waveVal * 0.2); // Mild default
-        if(songSection === 'DROP') distortion = 1 + (waveVal * 0.6); // Heavy distort
-        if(songSection === 'BUILD') distortion = 1 + (waveVal * (bassLevel)); // Rising distort
-
-        const px = p.x * r * distortion;
-        const py = p.y * r * distortion;
-
-        if(i===0) ctx.moveTo(px, py);
-        else ctx.lineTo(px, py);
+    update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life -= 0.03; 
     }
-    
-    ctx.closePath();
-    ctx.stroke();
-
-    // Fill Center
-    ctx.fillStyle = color;
-    ctx.globalAlpha = 0.1 + (bassLevel * 0.4); // Fill opacity reacts to bass
-    ctx.fill();
-
-    ctx.restore();
-
-    // --- GLITCH OVERLAY ON DROP ---
-    if(songSection === 'DROP') {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-        // Random horizontal scanlines
-        for(let i=0; i<10; i++) {
-            const y = Math.random() * canvas.height;
-            const h = Math.random() * 20;
-            ctx.fillRect(0, y, canvas.width, h);
-        }
+    draw(ctx) {
+        ctx.globalAlpha = this.life;
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, 2, 2); 
+        ctx.globalAlpha = 1;
     }
 }
 
-// --- INIT ---
+let dotPos = 0; // NEW: Track position of the scanner dot
 
-document.body.addEventListener('click', () => {
+function draw() {
+    requestAnimationFrame(draw);
+    
+    // --- HIGH-DPI FIX ---
+    // This checks if the screen resolution (Retina/Mobile) is higher than the canvas size
+    const dpr = window.devicePixelRatio || 1;
+    const rect = document.getElementById('screen').getBoundingClientRect();
+    
+    if(canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.scale(dpr, dpr); // Scale context to match
+    }
+
+    const cx = rect.width/2;
+    const cy = rect.height/2;
+
+    // FADE & CLEAR (TRANSPARENCY FIX)
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; 
+    ctx.fillRect(0, 0, rect.width, rect.height);
+    ctx.globalCompositeOperation = 'source-over';
+
+    const bufferLength = ANALYSER.frequencyBinCount;
+    const timeData = new Uint8Array(bufferLength);
+    ANALYSER.getByteTimeDomainData(timeData);
+    const freqData = new Uint8Array(bufferLength);
+    ANALYSER.getByteFrequencyData(freqData);
+    
+    // Calculate Bass Energy for Pulse
+    let bassVal = 0;
+    for(let i=0; i<15; i++) bassVal += freqData[i];
+    bassVal = bassVal / 15 / 255; 
+
+    // Aesthetic Config
+    let mainColor, glowColor, chaos;
+    if (section === "DROP") {
+        mainColor = '#ff0055';
+        glowColor = '#ff0000';
+        chaos = true;
+    } else if (section === "BUILD") {
+        mainColor = '#ffff00';
+        glowColor = '#ffaa00';
+        chaos = false;
+    } else {
+        mainColor = '#00ffaa'; 
+        glowColor = '#00ff00';
+        chaos = false;
+    }
+
+    // --- DRAW HEART ---
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.globalCompositeOperation = 'lighter'; 
+
+    const scaleBase = Math.min(rect.width, rect.height) / 45;
+    const pulse = 1 + (bassVal * 0.5); 
+    const scale = scaleBase * pulse;
+
+    ctx.beginPath();
+    for(let i=0; i<N_POINTS; i++) {
+        const p = points[i];
+        
+        // Map audio waveform
+        const idx = Math.floor((i/N_POINTS) * timeData.length);
+        const sig = (timeData[idx] / 128.0) - 1.0;
+        
+        let distort = sig * 0.5;
+        if(chaos) distort *= 2.5; 
+
+        const px = cx + (p.x * scale * (1 + distort));
+        const py = cy + (p.y * scale * (1 + distort));
+
+        if(i===0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+
+        // Spawn particles (Limited)
+        if (bassVal > 0.65 && Math.random() > 0.97) {
+             const speed = chaos ? 8 : 3;
+             particles.push(new Particle(px, py, glowColor, speed));
+        }
+    }
+    ctx.closePath();
+    
+    // Draw styles
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = mainColor;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = glowColor;
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = glowColor;
+    ctx.stroke();
+
+    // --- THE SCANNER DOT (AUDIO REACTIVE) ---
+    // Base speed (0.003) + Surge speed based on bass
+    const speed = 0.003 + (bassVal * 0.05); 
+    dotPos += speed;
+    if(dotPos >= 1) dotPos = 0;
+
+    const dotIdx = Math.floor(dotPos * N_POINTS);
+    const pDot = points[dotIdx];
+    const pxDot = cx + (pDot.x * scale);
+    const pyDot = cy + (pDot.y * scale);
+    
+    ctx.beginPath();
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = '#fff';
+    ctx.fillStyle = '#fff';
+    ctx.arc(pxDot, pyDot, 5, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.globalCompositeOperation = 'source-over'; 
+
+    // --- PARTICLES ---
+    for(let i=particles.length-1; i>=0; i--) {
+        particles[i].update();
+        particles[i].draw(ctx);
+        if(particles[i].life <= 0) particles.splice(i, 1);
+    }
+}
+
+document.getElementById('click-prompt').addEventListener('click', () => {
     if(isPlaying) return;
     AC.resume();
     isPlaying = true;
