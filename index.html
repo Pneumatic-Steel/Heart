@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>!!ICU!!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>// ICU //</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
@@ -14,22 +14,31 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            height: 100vh; /* Fallback */
+            height: 100dvh; /* Mobile browser address bar fix */
             color: #0f0;
             font-family: 'Share Tech Mono', monospace;
             user-select: none;
+            -webkit-user-select: none;
         }
 
         /* --- THE CHASSIS --- */
         #monitor-casing {
             width: 95vw;
-            height: 90vh;
+            height: 90vh; /* Fallback */
+            height: 90dvh;
+            max-width: 1600px; /* PC Max constraints */
+            max-height: 1000px;
             background: #000;
             border: 6px solid #1a1a1a;
             border-radius: 10px;
             box-shadow: 0 0 100px rgba(0,255,0,0.02);
             position: relative;
             overflow: hidden;
+            /* Flex center for the content inside */
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         /* SCREEN INTERNALS */
@@ -77,6 +86,8 @@
             flex-direction: column;
             gap: 15px;
             pointer-events: none;
+            transform-origin: top right;
+            transition: transform 0.3s ease;
         }
 
         .module {
@@ -118,6 +129,8 @@
             border-bottom: 2px solid #003300;
             padding-bottom: 10px;
             width: 350px;
+            transform-origin: top left;
+            transition: transform 0.3s ease;
         }
         #patient-name { font-size: 28px; color: #fff; letter-spacing: 1px; text-shadow: 0 0 5px rgba(255,255,255,0.5); font-weight: bold; }
         #timestamp { font-size: 14px; color: #008800; margin-top: 5px; letter-spacing: 2px; }
@@ -125,7 +138,8 @@
         /* ALERT BOX */
         #alert-box {
             position: absolute;
-            bottom: 60px; left: 50%;
+            bottom: 10%; 
+            left: 50%;
             transform: translateX(-50%);
             z-index: 15;
             font-size: 30px;
@@ -139,6 +153,8 @@
             box-shadow: 0 0 30px rgba(255, 0, 0, 0.6);
             text-align: center;
             text-shadow: 0 0 10px #f00;
+            width: 60%;
+            box-sizing: border-box;
         }
 
         #click-prompt {
@@ -157,6 +173,7 @@
             transition: all 0.2s;
             text-transform: uppercase;
             font-weight: bold;
+            white-space: nowrap;
         }
         #click-prompt:hover { background: #0f0; color: #000; box-shadow: 0 0 80px #0f0; }
         
@@ -165,6 +182,41 @@
             0% { background: rgba(50,0,0,0.9); color:#f00; border-color:#f00; } 
             50% { background: rgba(255,0,0,0.4); color:#fff; border-color:#fff;} 
             100% { background: rgba(50,0,0,0.9); color:#f00; border-color:#f00;} 
+        }
+
+        /* --- RESPONSIVE OPTIMIZATION --- */
+        
+        /* Tablets & Small Laptops */
+        @media (max-width: 1024px) {
+            #sidebar { transform: scale(0.85); top: 20px; right: 20px; }
+            #header { transform: scale(0.85); top: 20px; left: 20px; }
+        }
+
+        /* Mobile Landscape & Small Screens */
+        @media (max-width: 800px), (max-height: 600px) {
+            #sidebar { 
+                transform: scale(0.65); 
+                top: 10px; 
+                right: 10px; 
+                width: 200px;
+            }
+            #header { 
+                transform: scale(0.65); 
+                top: 10px; 
+                left: 10px;
+                width: 280px; 
+            }
+            .value { font-size: 40px; } /* Slightly smaller base font */
+            #alert-box {
+                font-size: 18px;
+                padding: 10px 20px;
+                bottom: 30px;
+                width: 80%;
+            }
+            #click-prompt {
+                padding: 15px 30px;
+                font-size: 16px;
+            }
         }
 
     </style>
@@ -526,15 +578,16 @@ class Particle {
     }
 }
 
-let dotPos = 0; // NEW: Track position of the scanner dot
+let dotPos = 0; 
 
 function draw() {
     requestAnimationFrame(draw);
     
-    // Resize
-    if(canvas.width !== document.getElementById('screen').clientWidth) {
-        canvas.width = document.getElementById('screen').clientWidth;
-        canvas.height = document.getElementById('screen').clientHeight;
+    // Resize Logic
+    const screenDiv = document.getElementById('screen');
+    if(canvas.width !== screenDiv.clientWidth || canvas.height !== screenDiv.clientHeight) {
+        canvas.width = screenDiv.clientWidth;
+        canvas.height = screenDiv.clientHeight;
     }
     const cx = canvas.width/2;
     const cy = canvas.height/2;
@@ -648,13 +701,14 @@ function draw() {
 
 document.getElementById('click-prompt').addEventListener('click', () => {
     if(isPlaying) return;
-    AC.resume();
-    isPlaying = true;
-    document.getElementById('click-prompt').style.display = 'none';
-    
-    nextTime = AC.currentTime + 0.1;
-    scheduler();
-    draw();
+    AC.resume().then(() => {
+        isPlaying = true;
+        document.getElementById('click-prompt').style.display = 'none';
+        
+        nextTime = AC.currentTime + 0.1;
+        scheduler();
+        draw();
+    });
 });
 
 </script>
